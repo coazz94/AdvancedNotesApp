@@ -5,6 +5,7 @@ import CreatableReactSelect from "react-select/creatable"
 import { NoteData, Tag } from "./App"
 
 type NoteFormProps = {
+    // this function will take some data, to export it, and its from the Type Notedata
     onSubmit: (data: NoteData) => void
 }
 
@@ -17,6 +18,7 @@ export function NoteForm({ onSubmit }: NoteFormProps) {
         e.preventDefault()
 
         onSubmit({
+            // pass the values from the Refs
             // the ! signals that the values cant be null
             title: titleRef.current!.value,
             markdown: markdownRef.current!.value,
@@ -37,6 +39,7 @@ export function NoteForm({ onSubmit }: NoteFormProps) {
                     <Col>
                         <Form.Group controlId="tags">
                             <Form.Label>Tags</Form.Label>
+                            // The way to handle CreatableReactSelect
                             <CreatableReactSelect
                                 value={selectedTags.map((tag) => {
                                     return { label: tag.label, value: tag.id }
@@ -82,7 +85,4 @@ export function NoteForm({ onSubmit }: NoteFormProps) {
             </Stack>
         </Form>
     )
-}
-function setState(): [any, any] {
-    throw new Error("Function not implemented.")
 }

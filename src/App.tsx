@@ -1,24 +1,55 @@
 import "bootstrap/dist/css/bootstrap.min.css"
+import { useMemo } from "react"
 import { Container } from "react-bootstrap"
 import { Routes, Route, Navigate } from "react-router-dom"
 import { NewNote } from "./NewNote"
+import { useLocalStorage } from "./useLocalStorage"
 
+// Here we need the id, but we add also the Note-Data type
 export type Note = {
     id: string
 } & NoteData
 
+// NoteData should not have a id, because its not directly linked to the note
 export type NoteData = {
     title: string
     markdown: string
     tags: Tag[]
 }
 
+// Tag Type defined
 export type Tag = {
     id: string
     label: string
 }
 
+// we store just the id for the Tag (because of renaming)
+export type RawNote = {
+    id: string
+} & RawNoteData
+
+export type RawNoteData = {
+    title: string
+    markdown: string
+    tagIds: string[]
+}
+
 export function App() {
+    const [notes, setNotes] = useLocalStorage<RawNote[]>("NOTES", [])
+    const [tags, setTags] = useLocalStorage<Tag[]>("TAGS", [])
+
+    const notesWithTags = useMemo(() => {
+        // loop over all my notes
+        return notes.map((note) => {
+            return {
+                // keep the information from the note
+                ...note,
+                // tags, have the id stored in the note
+                tags: tags.filter((tag) => note.tagIds.includes(tag.id)),
+            }
+        })
+    }, [notes, tags])
+
     return (
         <Container className="my-4">
             <Routes>

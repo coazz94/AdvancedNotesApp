@@ -4,6 +4,7 @@ import { Container } from "react-bootstrap"
 import { Routes, Route, Navigate } from "react-router-dom"
 import { NewNote } from "./NewNote"
 import { useLocalStorage } from "./useLocalStorage"
+import { v4 as uuidV4 } from "uuid"
 
 // Here we need the id, but we add also the Note-Data type
 export type Note = {
@@ -50,13 +51,39 @@ export function App() {
         })
     }, [notes, tags])
 
+    // function that takes in tags, and NoteData
+    function onCreateNote({ tags, ...data }: NoteData) {
+        // update the current stored notes to the new note
+        setNotes((prevNotes) => {
+            return [
+                // take the previous notes
+                ...prevNotes,
+                // add a new note, with data(title, markdown), add a random id, add all the ids from the tags that where added to TagIDS
+                { ...data, id: uuidV4(), tagIds: tags.map((tag) => tag.id) },
+            ]
+        })
+    }
+
+    function addTag(tag: Tag) {
+        setTags((prev) => [...prev, tag])
+    }
+
     return (
         <Container className="my-4">
             <Routes>
                 // Home Route
                 <Route path="/" element={<h1>Home</h1>} />
                 // make a new Note
-                <Route path="/new" element={<NewNote />} />
+                <Route
+                    path="/new"
+                    element={
+                        <NewNote
+                            onSubmit={onCreateNote}
+                            onAddTag={addTag}
+                            availableTags={tags}
+                        />
+                    }
+                />
                 // Id of the note
                 <Route path="/:id">
                     // show this always at first

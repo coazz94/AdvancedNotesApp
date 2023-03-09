@@ -6,6 +6,9 @@ import { NewNote } from "./NewNote"
 import { useLocalStorage } from "./useLocalStorage"
 import { v4 as uuidV4 } from "uuid"
 import { Notelist } from "./Notelist"
+import { NoteLayout } from "./NoteLayout"
+import { Note } from "./Note"
+import { EditNote } from "./EditNote"
 
 // Here we need the id, but we add also the Note-Data type
 export type Note = {
@@ -69,6 +72,28 @@ export function App() {
         setTags((prev) => [...prev, tag])
     }
 
+    function onUpdateNote(id: string, { tags, ...data }: NoteData) {
+        setNotes((prevNotes) => {
+            return prevNotes.map((note) => {
+                if (note.id === id) {
+                    return {
+                        ...note,
+                        ...data,
+                        tagIds: tags.map((tag) => tag.id),
+                    }
+                } else {
+                    return note
+                }
+            })
+        })
+    }
+
+    function onDeleteNote(id: string) {
+        setNotes((prevNotes) => {
+            return prevNotes.filter((note) => note.id !== id)
+        })
+    }
+
     return (
         <Container className="my-4">
             <Routes>
@@ -91,11 +116,23 @@ export function App() {
                     }
                 />
                 // Id of the note
-                <Route path="/:id">
+                <Route
+                    path="/:id"
+                    element={<NoteLayout notes={notesWithTags} />}
+                >
                     // show this always at first
-                    <Route index element={<h1>Show</h1>} />
+                    <Route index element={<Note onDelete={onDeleteNote} />} />
                     // Access the edit page through the Notes id page
-                    <Route path="edit" element={<h1>Edit</h1>} />
+                    <Route
+                        path="edit"
+                        element={
+                            <EditNote
+                                onSubmit={onUpdateNote}
+                                onAddTag={addTag}
+                                availableTags={tags}
+                            />
+                        }
+                    />
                 </Route>
                 // all other pages will be redirected to the Home Scree again
                 <Route path="*" element={<Navigate to="/" />} />
